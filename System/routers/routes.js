@@ -4,6 +4,22 @@ const HomePageController = require("../controllers/client/HomePageController");
 const UserController = require("../controllers/auth/UserController");
 const { authMiddleware } = require("../middleware/auth");
 const LoginRegisterController = require("../controllers/auth/LoginRegisterController");
+const ProductPageController = require("../controllers/client/ProductPageController");
+
+const path = require('path')
+const multer = require("multer");
+const uploadPath = path.join(__dirname, '../public/uploads');
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, uploadPath)
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname)
+    }
+})
+
+const upload = multer({ storage: storage })
+// router.post('/product-list/create-product',upload.single('image'), ProductController.postCreateProductPage)
 
 const clientRoute = express.Router();
 const adminRoute = express.Router();
@@ -17,6 +33,9 @@ clientRoute.get("/logout", LoginRegisterController.logoutUser)
 
 //Home Page Route
 clientRoute.get("/", authMiddleware, HomePageController.getHomePage)
+
+//Product Routes
+clientRoute.get("/products", ProductPageController.getProductPage)
 
 exports.clientRoute = clientRoute;
 exports.adminRoute = adminRoute;
