@@ -39,7 +39,21 @@ const logoutUser = (req, res) => {
     res.redirect("/login")
 }
 
+
+// Admin Login
+const getAdminLoginPage = (req, res) => {
+    res.render("auth/adminLogin", {
+        layout: "./layouts/adminApp",
+        docTitle: "Admin Login",
+        pageTitle: "Admin Login to Your Account",
+        page: "adminLogin"
+    })
+}
+
 exports.getRegisterPage = getRegisterPage
 exports.getLoginPage = getLoginPage
 exports.loginUser = loginUser
 exports.logoutUser = logoutUser
+
+// Admin Exports
+exports.getAdminLoginPage = getAdminLoginPage

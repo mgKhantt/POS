@@ -1,0 +1,67 @@
+<%- contentFor('style') %>
+<style>
+    body {
+        background: #f5f6fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .login-container {
+        max-width: 400px;
+        margin: 100px auto;
+        padding: 40px 30px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .login-container h2 {
+        margin-bottom: 25px;
+        color: #333;
+    }
+
+    .login-container input {
+        width: 100%;
+        padding: 12px 15px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .login-container button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 15px;
+        border: none;
+        border-radius: 8px;
+        background-color: #2f80ed;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .login-container button:hover {
+        background-color: #1366d6;
+    }
+
+    .login-footer {
+        margin-top: 15px;
+        font-size: 13px;
+        color: #666;
+    }
+</style>
+
+<%- contentFor('body') %>
+<div class="login-container">
+    <h2><%= pageTitle %></h2>
+    <form action="/admin/login" method="POST">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <div class="login-footer">
+        © 2025 POS System
+    </div>
+</div>

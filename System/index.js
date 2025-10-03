@@ -32,8 +32,6 @@ app.use(Auth.userName)
 app.use(clientRoute)
 app.use('/admin', adminRoute)
 
-
-
 connectDB().then(() => {
     app.listen(port, () => {
         console.log(`POS System is running at http://localhost:${port}`)

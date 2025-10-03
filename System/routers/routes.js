@@ -8,6 +8,9 @@ const ProductPageController = require("../controllers/client/ProductPageControll
 
 const path = require('path')
 const multer = require("multer");
+const AdminController = require("../controllers/admin/AdminController");
+
+
 const uploadPath = path.join(__dirname, '../public/uploads');
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -36,6 +39,18 @@ clientRoute.get("/", authMiddleware, HomePageController.getHomePage)
 
 //Product Routes
 clientRoute.get("/products", ProductPageController.getProductPage)
+
+
+//Admin Site
+//Admin Login Route
+adminRoute.get("/login", LoginRegisterController.getAdminLoginPage)
+// adminRoute.post("/login", LoginRegisterController.loginAdmin)
+// adminRoute.get("/logout", LoginRegisterController.logoutAdmin)
+
+adminRoute.get("/users", UserController.getUsersWithAdminRole)
+
+adminRoute.get("/create-admin", AdminController.getCreateAdminPage)
+adminRoute.post("/create-admin", AdminController.postCreateAdminPage)
 
 exports.clientRoute = clientRoute;
 exports.adminRoute = adminRoute;

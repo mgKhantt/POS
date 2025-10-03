@@ -1,0 +1,178 @@
+<%- contentFor('style') %>
+<style>
+    .user-section {
+        margin-bottom: 40px;
+    }
+    .section-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 20px;
+        background: #fff;
+    }
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .user-table {
+        width: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .user-table thead {
+        background-color: #f8f9fa;
+    }
+    .user-table th, .user-table td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 12px;
+    }
+    .user-table tbody tr:hover {
+        background-color: #f1f5ff;
+    }
+    .role-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+    .role-user { background-color: #6c757d; }
+    .role-admin { background-color: #0d6efd; }
+    .role-superadmin { background-color: #ffc107; }
+    .role-cashier { background-color: #198754; }
+    .btn-action {
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        border-radius: 6px;
+    }
+</style>
+
+<%- contentFor('body') %>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">User Management</h2>
+        <a href="/admin/create-admin" class="btn btn-primary">
+            <i class="fa fa-plus"></i> Create Admin
+        </a>
+    </div>
+
+    <!-- USERS -->
+    <div class="user-section section-card">
+        <div class="section-header">
+            <h4 class="text-secondary">Users</h4>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover user-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.filter(u => u.role === 'client').forEach((user, index) => { %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%= user.name %></td>
+                            <td><%= user.email %></td>
+                            <td>
+                                <%= user.createdAt  %>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-warning btn-action">Edit</button>
+                                <button class="btn btn-sm btn-danger btn-action">Delete</button>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ADMINS -->
+    <div class="user-section section-card">
+        <div class="section-header">
+            <h4 class="text-secondary">Admins</h4>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover user-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Admin Role</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users
+                        .filter(u => u.role === 'admin' || u.role === 'superadmin')
+                        .sort((a, b) => {
+                            if (a.role === 'superadmin' && b.role !== 'superadmin') return -1;
+                            if (a.role !== 'superadmin' && b.role === 'superadmin') return 1;
+                            return 0;
+                        })
+                        .forEach((user, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td><%= user.name %></td>
+                                <td><%= user.email %></td>
+                                <td>
+                                    <span class="role-badge <%= user.role === 'superadmin' ? 'role-superadmin' : 'role-admin' %>">
+                                        <%= user.adminDetails ? user.adminDetails.role : user.role %>
+                                    </span>
+                                </td>
+                                <td><%= new Date(user.createdAt).toLocaleString() %></td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning btn-action">Edit</button>
+                                    <button class="btn btn-sm btn-danger btn-action">Delete</button>
+                                </td>
+                            </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CASHIERS -->
+    <div class="user-section section-card">
+        <div class="section-header">
+            <h4 class="text-secondary">Cashiers</h4>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover user-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.filter(u => u.role === 'cashier').forEach((user, index) => { %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%= user.name %></td>
+                            <td><%= user.email %></td>
+                            <td><%= new Date(user.createdAt).toLocaleString() %></td>
+                            <td>
+                                <button class="btn btn-sm btn-warning btn-action">Edit</button>
+                                <button class="btn btn-sm btn-danger btn-action">Delete</button>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
