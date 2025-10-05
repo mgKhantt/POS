@@ -1,0 +1,83 @@
+<%- contentFor('style') %>
+    <style>
+
+    </style>
+
+    <%- contentFor('body') %>
+        <div class="container mt-5">
+            <div class="card shadow p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="card-title mb-0">Category Manager</h2>
+                    <a href="/admin/products/create-product" class="btn btn-outline-secondary">
+                        <i class="fa fa-arrow-left"></i> Back
+                    </a>
+                </div>
+
+                <!-- Create Category -->
+                <form action="/admin/products/create-product/category-manager" method="POST" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="name" placeholder="Enter new category name"
+                            required />
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fa fa-plus"></i> Add
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Category List -->
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Category Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% categories.forEach((category, index)=> { %>
+                            <tr>
+                                <td>
+                                    <%= index + 1 %>
+                                </td>
+                                <td>
+                                    <%= category.name %>
+                                </td>
+                                <td>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteCategory('<%= category._id %>', '<%= category.name %>')">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                </td>
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            async function deleteCategory(categoryID, categoryName) {
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: `${categoryName} category will be permanently deleted.`,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!"
+                }).then( result => {
+                    if(result.isConfirmed) {
+                        fetch(`/admin/products/create-product/category-manager/delete/${categoryID}`,
+                            {
+                                method: 'DELETE',
+                            }
+                        )
+                        .then(res => res.json())
+                        .then(data => {
+                            Swal.fire("Deleted!", `${categoryName} category has been deleted.`, "success")
+                            .then(() => location.reload());
+                        })
+                        .catch(err => console.error(err));
+                    }
+                })
+            }
+        </script>

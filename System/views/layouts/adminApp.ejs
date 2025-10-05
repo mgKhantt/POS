@@ -53,5 +53,27 @@
             crossorigin="anonymous"></script>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+            // Run on page load
+            window.addEventListener('DOMContentLoaded', () => {
+                const minWidth = 1024; // Minimum width for monitor/desktop
+                if (window.innerWidth < minWidth) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Screen too small!',
+                        text: 'This page is only usable on a monitor/desktop screen. Please switch to a larger screen for the best experience.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+
+            // Optional: Warn on resize
+            window.addEventListener('resize', () => {
+                const minWidth = 1024;
+                if (window.innerWidth < minWidth) {
+                    console.warn('Screen is too small for this page. Use a desktop screen.');
+                }
+            });
+        </script>
 
 </html>

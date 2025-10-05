@@ -68,7 +68,107 @@ const deleteProduct = async (req, res) => {
     }
 }
 
+//Category Manager and Brand Manager Controllers
+const getCategoryManagerPage = async (req, res) => {
+    const categories = await Category.find();
+    try {
+        res.render('admin/categoryManagerPage', {
+            layout: './layouts/adminApp',
+            docTitle: 'Category Manager',
+            pageTitle: 'Manage Categories',
+            categories: categories,
+        })
+    } catch (error) {
+        console.error("Error rendering category manager page:", error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+
+const postCategoryManager = async (req, res) => {
+    try {
+        const { name } = req.body;
+        if (!name) {
+            return res.status(400).send("Category name is required");
+        }
+
+        // Check for duplicate category
+        const existingCategory = await Category.findOne({ name });
+        if (existingCategory) {
+            return res.status(400).send("Category already exists");
+        }
+        const newCategory = new Category({ name });
+        await newCategory.save();
+        res.redirect('/admin/products/create-product/category-manager?added=success');
+    } catch (error) {
+        console.error("Error creating category:", error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+const deleteCategoryManager = async (req, res) => {
+    try {
+        const categoryID = req.params.id
+        await Category.findByIdAndDelete(categoryID)
+        res.status(200).json({ message: "Category deleted successfully" })
+    } catch (error) {
+        console.error("Error deleting category:", error)
+    }
+}
+
+// Brand Manager Controllers
+const getBrandManagerPage = async (req, res) => {
+    const brands = await Brand.find();
+    try {
+        res.render('admin/brandManagerPage', {
+            layout: './layouts/adminApp',
+            docTitle: 'Brand Manager',
+            pageTitle: 'Manage Brands',
+            brands: brands,
+        })
+    } catch (error) {
+        console.error("Error rendering brand manager page:", error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+
+const postBrandManager = async (req, res) => {
+    try {
+        const { name } = req.body;
+        if (!name) {
+            return res.status(400).send("Category name is required");
+        }
+
+        // Check for duplicate category
+        const existingBrand = await Brand.findOne({ name });
+        if (existingBrand) {
+            return res.status(400).send("Brand already exists");
+        }
+        const newBrand = new Brand({ name });
+        await newBrand.save();
+        res.redirect('/admin/products/create-product/brand-manager?added=success');
+    } catch (error) {
+        console.error("Error creating category:", error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+const deleteBrandManager = async (req, res) => {
+    try {
+        const brandID = req.params.id
+        await Brand.findByIdAndDelete(brandID)
+        res.status(200).json({ message: "Brand deleted successfully" })
+    } catch (error) {
+        console.error("Error deleting category:", error)
+    }
+}
+
 exports.getAdminProductPage = getAdminProductPage;
 exports.getAdminCreateProductPage = getAdminCreateProductPage;
 exports.postAdminCreateProductPage = postAdminCreateProductPage;
 exports.deleteProduct = deleteProduct;
+
+exports.getCategoryManagerPage = getCategoryManagerPage;
+exports.postCategoryManager = postCategoryManager;
+exports.deleteCategoryManager = deleteCategoryManager;
+
+exports.getBrandManagerPage = getBrandManagerPage;
+exports.postBrandManager = postBrandManager;
+exports.deleteBrandManager = deleteBrandManager;

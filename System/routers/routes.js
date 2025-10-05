@@ -66,5 +66,14 @@ adminRoute.get("/products/create-product", AdminProductsController.getAdminCreat
 adminRoute.post("/products/create-product", upload.single('image'), AdminProductsController.postAdminCreateProductPage)
 adminRoute.delete("/products/delete/:id", AdminProductsController.deleteProduct)
 
+//Category Manager and Brand Manager Routes
+adminRoute.get("/products/create-product/category-manager", AdminProductsController.getCategoryManagerPage)
+adminRoute.post("/products/create-product/category-manager", AdminProductsController.postCategoryManager)
+adminRoute.delete("/products/create-product/category-manager/delete/:id", AdminProductsController.deleteCategoryManager)
+
+adminRoute.get("/products/create-product/brand-manager", AdminProductsController.getBrandManagerPage)
+adminRoute.post("/products/create-product/brand-manager", AdminProductsController.postBrandManager)
+adminRoute.delete("/products/create-product/brand-manager/delete/:id", AdminProductsController.deleteBrandManager)
+
 exports.clientRoute = clientRoute;
 exports.adminRoute = adminRoute;
