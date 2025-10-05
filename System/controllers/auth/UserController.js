@@ -108,6 +108,8 @@ const getUsersWithAdminRole = async (req, res) => {
                     name: 1,
                     email: 1,
                     role: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
                     "adminDetails.username": 1,
                     "adminDetails.role": 1,
                     "adminDetails.createdAt": 1,

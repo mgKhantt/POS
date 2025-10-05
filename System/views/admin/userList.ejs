@@ -52,6 +52,13 @@
         color: #198754 !important;
         font-weight: 600;
     }
+
+    .user-table td .btn-action-container {
+        display: flex;
+        flex-wrap: wrap; /* Allow buttons to go vertically on small screens */
+        justify-content: center; /* Center buttons */
+        gap: 6px; /* Space between buttons */
+    }
 </style>
 
 <%- contentFor('body') %>
@@ -90,8 +97,10 @@
                                 <%= moment(user.updatedAt).format("YYYY-MM-DD HH:mm:ss") %>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-warning btn-action" onclick="editUser('<%= user._id %>')">Edit</button>
-                                <button class="btn btn-sm btn-danger btn-action" onclick="deleteUser('<%= user._id %>')">Delete</button>
+                                <div class="btn-action-container">
+                                    <button class="btn btn-sm btn-warning btn-action" onclick="editUser('<%= user._id %>')">Edit</button>
+                                    <button class="btn btn-sm btn-danger btn-action" onclick="deleteUser('<%= user._id %>')">Delete</button>
+                                </div>
                             </td>
                         </tr>
                     <% }) %>
@@ -140,8 +149,10 @@
                                     <%= moment(user.updatedAt).format("YYYY-MM-DD HH:mm:ss") %>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-warning btn-action" onclick="editUser('<%= user._id %>')">Edit</button>
-                                    <button class="btn btn-sm btn-danger btn-action" onclick="deleteUser('<%= user._id %>')">Delete</button>
+                                    <div class="btn-action-container">
+                                        <button class="btn btn-sm btn-warning btn-action" onclick="editUser('<%= user._id %>')">Edit</button>
+                                        <button class="btn btn-sm btn-danger btn-action" onclick="deleteUser('<%= user._id %>')">Delete</button>
+                                    </div>
                                 </td>
                             </tr>
                     <% }) %>
@@ -176,8 +187,10 @@
                                 <%= moment(user.updatedAt).format("YYYY-MM-DD HH:mm:ss") %>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-warning btn-action" onclick="editUser('<%= user._id %>')">Edit</button>
-                                <button class="btn btn-sm btn-danger btn-action" onclick="deleteUser('<%= user._id %>')">Delete</button>
+                                <div class="btn-action-container">
+                                    <button class="btn btn-sm btn-warning btn-action" onclick="editUser('<%= user._id %>')">Edit</button>
+                                    <button class="btn btn-sm btn-danger btn-action" onclick="deleteUser('<%= user._id %>')">Delete</button>
+                                </div>
                             </td>
                         </tr>
                     <% }) %>
