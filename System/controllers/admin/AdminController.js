@@ -6,7 +6,8 @@ const getAdminHomePage = (req, res) => {
         layout: "./layouts/adminApp",
         docTitle: "Admin Home",
         pageTitle: "Welcome to the Admin Dashboard",
-        user: req.session.user,
+        // admin: req.session.user,
+        admin: { name: "Khant Phonenaing" },
         page: "adminHome",
     });
 };

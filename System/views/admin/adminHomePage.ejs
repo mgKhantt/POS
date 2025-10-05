@@ -1,0 +1,81 @@
+<%- contentFor('style') %>
+<style>
+    .admin-home {
+        padding: 30px;
+    }
+
+    .admin-home h1 {
+        font-weight: 700;
+        color: #0d6efd;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .dashboard-card {
+        padding: 20px;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: 0.2s ease-in-out;
+        text-align: center;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+
+    .dashboard-card i {
+        font-size: 2.5rem;
+        color: #0d6efd;
+        margin-bottom: 10px;
+    }
+
+    .dashboard-card h4 {
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .dashboard-card p {
+        margin: 0;
+        color: #6c757d;
+    }
+</style>
+
+<%- contentFor('body') %>
+<div class="container admin-home">
+    <h1>Welcome, <%= admin.name %> 👋</h1>
+    <p class="text-muted">Here’s an overview of your POS system.</p>
+
+    <div class="dashboard-cards">
+        <a href="/admin/users" class="dashboard-card text-decoration-none text-dark">
+            <i class="fa-solid fa-users"></i>
+            <h4>Manage Admins</h4>
+            <p>View, create, and edit admin accounts</p>
+        </a>
+
+        <a href="/admin/products" class="dashboard-card text-decoration-none text-dark">
+            <i class="fa-solid fa-box"></i>
+            <h4>Products</h4>
+            <p>Manage product list and inventory</p>
+        </a>
+
+        <a href="/admin/orders" class="dashboard-card text-decoration-none text-dark">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <h4>Orders</h4>
+            <p>Track and manage customer orders</p>
+        </a>
+
+        <a href="/admin/reports" class="dashboard-card text-decoration-none text-dark">
+            <i class="fa-solid fa-chart-line"></i>
+            <h4>Reports</h4>
+            <p>View sales and performance analytics</p>
+        </a>
+    </div>
+</div>

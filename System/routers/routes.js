@@ -9,6 +9,7 @@ const ProductPageController = require("../controllers/client/ProductPageControll
 const path = require('path')
 const multer = require("multer");
 const AdminController = require("../controllers/admin/AdminController");
+const AdminProductsController = require("../controllers/admin/AdminProductsController");
 
 
 const uploadPath = path.join(__dirname, '../public/uploads');
@@ -47,10 +48,20 @@ adminRoute.get("/login", LoginRegisterController.getAdminLoginPage)
 // adminRoute.post("/login", LoginRegisterController.loginAdmin)
 // adminRoute.get("/logout", LoginRegisterController.logoutAdmin)
 
+//Admin Home Page Route
+adminRoute.get("/dashboard", AdminController.getAdminHomePage)
+
+//admin User Management Routes
 adminRoute.get("/users", UserController.getUsersWithAdminRole)
+adminRoute.delete("/users/:id", UserController.deleteUser)
+adminRoute.get("/users/:id/edit", UserController.getUserById)
+adminRoute.post("/users/:id/edit", UserController.updateUser)
 
 adminRoute.get("/create-admin", AdminController.getCreateAdminPage)
 adminRoute.post("/create-admin", AdminController.postCreateAdminPage)
+
+//admin Product Management Routes
+adminRoute.get("/products", AdminProductsController.getAdminProductPage)
 
 exports.clientRoute = clientRoute;
 exports.adminRoute = adminRoute;

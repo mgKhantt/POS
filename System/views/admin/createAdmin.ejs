@@ -23,12 +23,21 @@
         font-size: 16px;
         font-weight: bold;
     }
+    .btn-back {
+        margin-bottom: 15px;
+    }
 </style>
 
 <%- contentFor('body') %>
 <div class="container">
     <div class="create-admin-form">
-        <h2>Create New Admin</h2>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="m-0">Create New Admin</h2>
+            <a href="/admin/users" class="btn btn-outline-secondary btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </a>
+        </div>
+
         <form action="/admin/create-admin" method="POST">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
