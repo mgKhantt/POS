@@ -168,6 +168,34 @@
     .pagination button:hover {
         background-color: #e9ecef;
     }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column; /* Stack buttons vertically */
+            gap: 6px;
+        }
+
+        th, td {
+            font-size: 0.85rem;
+            padding: 10px 12px;
+        }
+
+        .search-bar input, .filter select {
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header h2 {
+            font-size: 1.4rem;
+        }
+
+        .add-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
 </style>
 
 <%- contentFor('body') %>
@@ -338,3 +366,28 @@
     // Initialize
     applyFilters();
 </script>
+
+<script>
+    // Run on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        const minWidth = 1024; // Minimum width for monitor/desktop
+        if (window.innerWidth < minWidth) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Screen too small!',
+                text: 'This page is only usable on a monitor/desktop screen. Please switch to a larger screen for the best experience.',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+
+    // Optional: Warn on resize
+    window.addEventListener('resize', () => {
+        const minWidth = 1024;
+        if (window.innerWidth < minWidth) {
+            console.warn('Screen is too small for this page. Use a desktop screen.');
+        }
+    });
+</script>
+
+
