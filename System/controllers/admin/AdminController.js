@@ -25,7 +25,6 @@ const getCreateAdminPage = (req, res) => {
 const postCreateAdminPage = async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
-        console.log(req.body);
 
         if (!username || !email || !password) {
             return res
@@ -59,7 +58,7 @@ const postCreateAdminPage = async (req, res) => {
             updatedAt: onlyDate,
         });
         const savedUser = await newUser.save();
-        console.log("Saved User:", savedUser);
+        // console.log("Saved User:", savedUser);
 
         // 2️⃣ Save Admin
         const newAdmin = new Admin({
@@ -72,7 +71,7 @@ const postCreateAdminPage = async (req, res) => {
             updatedAt: onlyDate,
         });
         const savedAdmin = await newAdmin.save();
-        console.log("Saved Admin:", savedAdmin);
+        // console.log("Saved Admin:", savedAdmin);
 
         // 3️⃣ Update user to reference admin
         savedUser.adminRef = savedAdmin._id;

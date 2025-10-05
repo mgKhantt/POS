@@ -62,6 +62,9 @@ adminRoute.post("/create-admin", AdminController.postCreateAdminPage)
 
 //admin Product Management Routes
 adminRoute.get("/products", AdminProductsController.getAdminProductPage)
+adminRoute.get("/products/create-product", AdminProductsController.getAdminCreateProductPage)
+adminRoute.post("/products/create-product", upload.single('image'), AdminProductsController.postAdminCreateProductPage)
+adminRoute.delete("/products/delete/:id", AdminProductsController.deleteProduct)
 
 exports.clientRoute = clientRoute;
 exports.adminRoute = adminRoute;
