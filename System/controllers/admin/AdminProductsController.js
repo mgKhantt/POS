@@ -50,12 +50,68 @@ const postAdminCreateProductPage = async (req, res) => {
         
         await newProduct.save();
         
-        res.redirect('/admin/products?added=success');
+        res.redirect('/admin/products');
     } catch (error) {
         console.error("Error creating product:", error);
         return res.status(500).send("Internal Server Error");
     }
 }
+
+const getAdminEditProductPage = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const product = await Product.findById(productId)
+        const categories = await Category.find();
+        const brands = await Brand.find()
+
+        res.render('admin/adminEditProductPage', {
+            layout: './layouts/adminApp',
+            docTitle: 'Edit Product',
+            pageTitle: 'Edit Product',
+            product: product,
+            categories: categories,
+            brands: brands,
+        })
+    } catch (error) {
+        console.error("Error fetching product for edit:", error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+
+const postAdminEditProductPage = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const { name, code, category, brand, stock, price } = req.body;
+
+    // Find existing product first
+    const existingProduct = await Product.findById(productId);
+    if (!existingProduct) {
+      return res.status(404).send("Product not found");
+    }
+
+    // If a new image is uploaded, use it; otherwise, keep the old one
+    const image = req.file ? req.file.filename : null;
+    const filePath = image ? `/uploads/${image}` : existingProduct.imageUrl;
+
+    const updatedData = {
+      name,
+      code,
+      category,
+      stock,
+      brand,
+      price,
+      imageUrl: filePath, // keep existing if not changed
+    };
+
+    await Product.findByIdAndUpdate(productId, updatedData);
+
+    res.redirect("/admin/products");
+  } catch (error) {
+    console.error("Error editing product:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
 
 const deleteProduct = async (req, res) => {
     try {
@@ -163,6 +219,8 @@ const deleteBrandManager = async (req, res) => {
 exports.getAdminProductPage = getAdminProductPage;
 exports.getAdminCreateProductPage = getAdminCreateProductPage;
 exports.postAdminCreateProductPage = postAdminCreateProductPage;
+exports.getAdminEditProductPage = getAdminEditProductPage;
+exports.postAdminEditProductPage = postAdminEditProductPage;
 exports.deleteProduct = deleteProduct;
 
 exports.getCategoryManagerPage = getCategoryManagerPage;

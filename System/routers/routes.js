@@ -64,6 +64,10 @@ adminRoute.post("/create-admin", AdminController.postCreateAdminPage)
 adminRoute.get("/products", AdminProductsController.getAdminProductPage)
 adminRoute.get("/products/create-product", AdminProductsController.getAdminCreateProductPage)
 adminRoute.post("/products/create-product", upload.single('image'), AdminProductsController.postAdminCreateProductPage)
+
+adminRoute.get("/products/edit/:id", AdminProductsController.getAdminEditProductPage)
+adminRoute.post("/products/edit/:id", upload.single('image'), AdminProductsController.postAdminEditProductPage)
+
 adminRoute.delete("/products/delete/:id", AdminProductsController.deleteProduct)
 
 //Category Manager and Brand Manager Routes
