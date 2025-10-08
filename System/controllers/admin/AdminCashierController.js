@@ -1,14 +1,20 @@
+const Brand = require("../../models/Brand");
+const Category = require("../../models/Category");
 const Product = require("../../models/Products");
-
 const PDFDocument = require('pdfkit');
 require('pdfkit-table'); // Extends PDFDocument with table() method
 const getAdminCashierPage = async (req, res) => {
     const products = await Product.find();
+    const categories = await Category.find();
+    const brands = await Brand.find();
+
     res.render("admin/orders/AdminCashierModePage", {
         layout: "./layouts/adminApp",
         docTitle: "Cashier",
         pageTitle: "Cashier",
-        products: products
+        products: products,
+        categories: categories,
+        brands: brands
     });
 }
 
