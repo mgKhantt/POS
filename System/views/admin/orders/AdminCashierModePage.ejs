@@ -12,6 +12,13 @@
     --shadow-dark: rgba(0, 0, 0, 0.1);
   }
 
+  .no-select {
+        user-select: none; /* Standard */
+        -webkit-user-select: none; /* Chrome, Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE/Edge */
+    }
+
   body {
     background-color: var(--background-color);
     font-family: 'Poppins', sans-serif;
@@ -220,9 +227,9 @@
     <div class="product-grid">
       <% products.forEach(product => { %>
         <div class="product-card" onclick="addToCart('<%= product.name %>', <%= product.price %>)">
-          <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
-          <h6><%= product.name %></h6>
-          <p class="mb-0">$<%= product.price.toFixed(2) %></p>
+          <img src="<%= product.imageUrl || '/uploads/no-image.png' %>" class="no-select" alt="<%= product.name %>" draggable="false">
+          <h6 class="no-select"><%= product.name %></h6>
+          <p class="mb-0 no-select">$<%= product.price.toFixed(2) %></p>
         </div>
       <% }) %>
     </div>

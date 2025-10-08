@@ -1,9 +1,7 @@
 const Product = require("../../models/Products");
-const PDFDocument = require('pdfkit');
-const { jsPDF } = require("jspdf");
-const fs = require("fs");
-const path = require("path");
 
+const PDFDocument = require('pdfkit');
+require('pdfkit-table'); // Extends PDFDocument with table() method
 const getAdminCashierPage = async (req, res) => {
     const products = await Product.find();
     res.render("admin/orders/AdminCashierModePage", {
@@ -14,119 +12,171 @@ const getAdminCashierPage = async (req, res) => {
     });
 }
 
-// const postCheckOut = async (req, res) => {
-//   try {
-//     const { cart, total } = req.body;
-//     console.log("Received checkout data:", cart, total);
+const postCheckOut = async (req, res) => {
+  const { cart, total } = req.body;
 
-//     res.setHeader('Content-Type', 'application/pdf');
-//     res.setHeader('Content-Disposition', `attachment; filename=voucher_${Date.now()}.pdf`);
+  if (!cart || !Array.isArray(cart) || cart.length === 0) {
+    return res.status(400).json({ message: "Cart is empty" });
+  }
 
-//     const PDFDocument = require('pdfkit'); // ✅ ensure imported
-//     const doc = new PDFDocument({ margin: 50 });
-//     doc.pipe(res);
+  const grandTotal = parseFloat(total);
+  if (isNaN(grandTotal)) {
+    return res.status(400).json({ message: "Invalid total." });
+  }
 
-//     doc.fontSize(25).text('Code Crafters POS Voucher', { align: 'center' });
-//     doc.moveDown();
-
-//     doc.fontSize(16).fillColor('#0d9488').text('Transaction Details', { underline: true });
-//     doc.moveDown(0.5);
-//     doc.fontSize(12).fillColor('#374151').text(`Date: ${new Date().toLocaleString()}`);
-//     doc.moveDown(1);
-
-//     // Headers
-//     doc.text('Item', 50, doc.y, { width: 250 })
-//        .text('Qty', 300, doc.y, { width: 100, align: 'right' })
-//        .text('Price', 400, doc.y, { width: 100, align: 'right' })
-//        .text('Total', 500, doc.y, { width: 50, align: 'right' });
-//     doc.strokeColor('#e5e7eb').lineWidth(1).moveTo(50, doc.y + 5).lineTo(550, doc.y + 5).stroke();
-//     doc.moveDown(0.2);
-
-//     cart.forEach(item => {
-//       const itemTotal = (item.price * item.qty).toFixed(2);
-//       doc.text(item.name, 50, doc.y, { width: 250, continued: true })
-//          .text(item.qty.toString(), 300, doc.y, { width: 100, align: 'right', continued: true })
-//          .text(`$${item.price.toFixed(2)}`, 400, doc.y, { width: 100, align: 'right', continued: true })
-//          .text(`$${itemTotal}`, 500, doc.y, { width: 50, align: 'right' });
-//       doc.moveDown(0.5);
-//     });
-
-//     doc.moveDown(1);
-//     doc.strokeColor('#0d9488').lineWidth(2).moveTo(350, doc.y).lineTo(550, doc.y).stroke();
-//     doc.moveDown(0.2);
-//     doc.fontSize(18).fillColor('#0d9488')
-//        .text('GRAND TOTAL:', 350, doc.y, { width: 150, align: 'left', continued: true })
-//        .text(`$${total.toFixed(2)}`, 500, doc.y, { width: 50, align: 'right' });
-
-//     doc.end();
-//   } catch (err) {
-//     console.error("Error generating voucher:", err);
-//     res.status(500).json({ message: "Voucher generation failed", error: err.message });
-//   }
-// };
-
-const postCheckOut  = async (order) => {
   try {
-    const doc = new jsPDF({
-      unit: "mm",
-      format: [80, 150], // small receipt size
+    // --- Layout Constants ---
+    const PAGE_WIDTH = 300; // Smaller width for a thermal receipt feel
+    const PAGE_HEIGHT = 600;
+    const MARGIN = 15;
+    const CONTENT_WIDTH = PAGE_WIDTH - 2 * MARGIN;
+    const itemSpace = (PAGE_HEIGHT - 150) / cart.length; 
+    
+    // Calculated height to ensure all items fit
+    const docHeight = Math.max(300, 200 +  cart.length * itemSpace); 
+    const doc = new PDFDocument({ 
+      size: [PAGE_WIDTH, docHeight], 
+      margin: MARGIN 
     });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=voucher-${Date.now()}.pdf`);
+
+    doc.pipe(res);
+
+    // Helper function to draw a clean dashed line
+    const drawSeparator = (doc, y) => {
+      doc.moveTo(MARGIN, y)
+         .lineTo(PAGE_WIDTH - MARGIN, y)
+         .dash(2, { space: 2 })
+         .strokeOpacity(0.5)
+         .stroke();
+      doc.undash();
+      doc.strokeOpacity(1);
+    };
 
     // --- Header ---
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.text("UniMart POS", 40, 10, { align: "center" });
-
-    doc.setFontSize(10);
-    doc.text("Thank you for shopping!", 40, 15, { align: "center" });
-    doc.line(5, 18, 75, 18);
+    doc.fontSize(18).font('Helvetica-Bold').text('UniMart POS', { align: 'center' });
+    doc.moveDown(0.2);
+    doc.fontSize(10).font('Helvetica-Oblique').text('Thank you for shopping!', { align: 'center' });
+    doc.moveDown(0.5);
 
     // --- Order Details ---
-    doc.setFont("helvetica", "normal");
-    doc.text(`Order ID: ${order._id}`, 5, 25);
-    doc.text(`Date: ${new Date(order.createdAt).toLocaleString()}`, 5, 30);
-    doc.line(5, 33, 75, 33);
+    drawSeparator(doc, doc.y);
+    doc.moveDown(0.5);
 
-    // --- Items Table ---
-    let y = 38;
-    doc.setFont("helvetica", "bold");
-    doc.text("Item", 5, y);
-    doc.text("Qty", 35, y);
-    doc.text("Price", 55, y);
-    y += 5;
-    doc.setFont("helvetica", "normal");
+    const now = new Date();
+    doc.fontSize(9).font('Helvetica');
+    doc.text(`Date: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`, MARGIN);
+    doc.text(`Order ID: ${Date.now()}`, MARGIN, doc.y);
+    
+    doc.moveDown(0.5);
+    drawSeparator(doc, doc.y);
 
-    order.items.forEach((item) => {
-      doc.text(item.name.substring(0, 12), 5, y);
-      doc.text(`${item.quantity}`, 37, y, { align: "right" });
-      doc.text(`${item.price.toFixed(2)}`, 75, y, { align: "right" });
-      y += 5;
+    // --- Table Header ---
+    const xItem = MARGIN;
+    // Set fixed positions based on the new PAGE_WIDTH
+    const xQty = PAGE_WIDTH - MARGIN - 70;  // Qty starts 70px from right edge
+    const xTotal = PAGE_WIDTH - MARGIN - 40; // Total starts 40px from right edge (right aligned)
+    const ColWidths = [xQty - xItem, 30, 40]; // [Item Name Width, Qty Width, Total Width]
+
+    doc.moveDown(0.5);
+    doc.font('Helvetica-Bold').fontSize(10);
+    doc.text('Item', xItem, doc.y);
+    doc.text('Qty', xQty - 13, 95, { width: 30, align: 'right'}); 
+    doc.text('Total', xTotal, 95, { width: 40, align: 'right' }); 
+    
+    doc.moveDown(0.2);
+    drawSeparator(doc, doc.y);
+
+    // --- Cart Items ---
+    doc.font('Courier').fontSize(10); // Use Courier (monospace) for perfect price alignment
+    doc.moveDown(0.3);
+
+    cart.forEach(item => {
+      const itemTotal = (item.qty * item.price).toFixed(2);
+      const name = item.name.length > 30 ? item.name.substring(0, 27) + "..." : item.name;
+
+      // Item Name (left aligned)
+      doc.text(name, xItem, doc.y, { width: ColWidths[0] - 5 }); 
+      
+      // Qty (centered in its column)
+      doc.text(`x${item.qty}`, xQty - 10, doc.y - 10, { width: 30, align: 'center' }); 
+      
+      // Total (right aligned - crucial)
+      doc.text(`$${itemTotal}`, xTotal - 10, doc.y - 10, { width: 50, align: 'right' }); 
+
+      doc.moveDown(0.5); // Add a bit more spacing between items
     });
 
-    doc.line(5, y, 75, y);
-    y += 6;
+    drawSeparator(doc, doc.y);
 
     // --- Totals ---
-    doc.text(`Subtotal: ${order.subtotal.toFixed(2)}`, 75, y, { align: "right" });
-    y += 5;
-    doc.text(`Tax: ${order.tax.toFixed(2)}`, 75, y, { align: "right" });
-    y += 5;
-    doc.setFont("helvetica", "bold");
-    doc.text(`Total: ${order.total.toFixed(2)}`, 75, y, { align: "right" });
+    const taxRate = 0.07;
+    const subtotal = grandTotal / (1 + taxRate);
+    const tax = grandTotal - subtotal;
+    const TOTALS_LEFT_COL_X = xItem;
+    const TOTALS_RIGHT_COL_X = xTotal;
+
+    // Helper to draw a total line with alignment
+    const drawTotalLine = (label, amount, font, size, amountWidth = 60) => {
+        doc.font(font).fontSize(size);
+        const yPos = doc.y;
+
+        // Calculate the starting X for amount column
+        const amountX = PAGE_WIDTH - MARGIN - amountWidth;
+
+        // Label on the left, takes all space up to the amount column
+        doc.text(label, MARGIN, yPos, { width: amountX - MARGIN, align: 'left' });
+
+        // Amount on the right, fixed width, right-aligned
+        doc.text(`$${amount.toFixed(2)}`, amountX, yPos, { width: amountWidth, align: 'right' });
+
+        doc.moveDown(0.2);
+    };
+
+
+    doc.moveDown(0.3);
+    // Use Courier-Bold for better visual weight and alignment
+    drawTotalLine('Subtotal:', subtotal, 'Courier-Bold', 10);
+    drawTotalLine(`Tax (${(taxRate * 100).toFixed(0)}%):`, tax, 'Courier-Bold', 10);
+
+    doc.moveDown(0.2);
+    drawSeparator(doc, doc.y);
+    doc.moveDown(0.8);
+    
+    // Grand Total is larger and more prominent
+    drawTotalLine('GRAND TOTAL:', grandTotal, 'Courier-Bold', 14, 80);
+
+    // doc.moveDown(1);
+    drawSeparator(doc, doc.y);
 
     // --- Footer ---
-    y += 10;
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(9);
-    doc.text("Visit Again!", 40, y, { align: "center" });
+    doc.moveDown(0.5);
+    doc.font('Helvetica-Oblique')
+   .fontSize(10)
+   .text('Visit Again!', MARGIN, doc.y, { 
+       width: PAGE_WIDTH - 2 * MARGIN, 
+       align: 'center' 
+   });
 
-    const filePath = path.join(__dirname, `../vouchers/voucher-${order._id}.pdf`);
-    doc.save(filePath);
+    doc.moveDown(0.2);
 
-    return filePath;
+    doc.font('Helvetica')
+      .fontSize(9)
+      .text('Powered by Swiftly Learn', MARGIN, doc.y, { 
+          width: PAGE_WIDTH - 2 * MARGIN, 
+          align: 'center' 
+      });
+
+    doc.end();
+
   } catch (err) {
-    console.error("Error generating voucher:", err);
-    throw new Error("Voucher generation failed.");
+    console.error("Voucher generation failed:", err);
+    // Only send the error response if headers haven't been sent yet
+    if (!res.headersSent) {
+      res.status(500).json({ message: "Voucher generation failed", error: err.message });
+    }
   }
 };
 
