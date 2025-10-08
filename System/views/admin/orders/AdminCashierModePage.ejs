@@ -1,0 +1,421 @@
+<%- contentFor('style') %>
+<style>
+  /* Root variables for easy color changes */
+  :root {
+    --primary-color: #0d9488; /* Darker Teal */
+    --primary-light: #14b8a6;
+    --background-color: #f7f9fc; /* Lighter background */
+    --card-bg: #ffffff;
+    --text-color: #374151;
+    --subtle-text: #6b7280;
+    --shadow-light: rgba(255, 255, 255, 0.7);
+    --shadow-dark: rgba(0, 0, 0, 0.1);
+  }
+
+  body {
+    background-color: var(--background-color);
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-color);
+  }
+
+  .pos-container {
+    display: grid;
+    grid-template-columns: 2.5fr 1fr;
+    gap: 40px; /* Increased gap */
+    padding: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* --- Product Grid & Card --- */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Slightly larger cards */
+    gap: 25px;
+  }
+
+  .product-card {
+    border-radius: 18px;
+    box-shadow: 5px 5px 15px var(--shadow-dark), -5px -5px 15px var(--shadow-light); /* Soft shadow for depth */
+    padding: 20px;
+    background-color: var(--card-bg);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 8px 8px 25px var(--shadow-dark);
+  }
+
+  .product-card img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1));
+  }
+
+  .product-card h6 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .product-card p {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0;
+  }
+  
+  /* --- Checkout Panel --- */
+  .checkout-panel {
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* Stronger main shadow */
+    background: var(--card-bg);
+    padding: 30px; /* Increased padding */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 700px; /* Ensure panel height */
+    position: sticky;
+    top: 30px; /* Make it stick during scroll */
+  }
+
+  .cart-header {
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #e5e7eb;
+  }
+
+  #cartItems {
+    flex-grow: 1; /* Allows cart items to take up available space */
+    max-height: calc(100vh - 400px); /* Limit height for scrollability */
+    overflow-y: auto;
+    padding-right: 10px; /* Space for scrollbar */
+  }
+
+  .cart-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr; /* Name | Qty Controls | Total Price */
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.95rem;
+  }
+
+  .cart-item:last-child {
+    border-bottom: none;
+  }
+
+  .cart-item-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .qty-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #f9f9fb;
+    border-radius: 8px;
+    padding: 4px 0;
+  }
+
+  .qty-btn {
+    background: transparent;
+    border: none;
+    color: var(--primary-color);
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+
+  .qty-btn:hover {
+    color: var(--primary-light);
+    transform: scale(1.1);
+  }
+  
+  .cart-item > span:last-child {
+      font-weight: 600;
+      text-align: right;
+  }
+
+  /* --- Total & Checkout --- */
+  .total-section {
+    border-top: 2px solid var(--primary-color); /* Emphasize border */
+    margin-top: 20px;
+    padding-top: 20px;
+  }
+
+  .total-label {
+    font-weight: 700;
+    font-size: 1.4rem; /* Larger total font */
+  }
+
+  #totalAmount {
+      color: var(--primary-color);
+  }
+
+  .checkout-btn {
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 15px; /* Bigger button */
+    border-radius: 12px;
+    margin-top: 15px;
+    width: 100%;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(13, 148, 136, 0.4);
+    transition: all 0.3s ease;
+  }
+
+  .checkout-btn:hover {
+    background-color: var(--primary-light);
+    box-shadow: 0 6px 20px rgba(13, 148, 136, 0.6);
+  }
+
+  .empty-cart {
+    text-align: center;
+    color: var(--subtle-text);
+    margin-top: 40px;
+    font-style: italic;
+    padding: 20px;
+    border: 1px dashed #e5e7eb;
+    border-radius: 10px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 992px) {
+    .pos-container {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .checkout-panel {
+      min-height: auto;
+      position: relative;
+    }
+    #cartItems {
+      max-height: 300px; /* Adjust height for mobile/tablet */
+    }
+  }
+</style>
+
+<%- contentFor('body') %>
+<div class="pos-container container">
+  <div>
+    <h4 class="mb-4 fw-bold text-dark">🛒 Product Catalog</h4>
+    <div class="product-grid">
+      <% products.forEach(product => { %>
+        <div class="product-card" onclick="addToCart('<%= product.name %>', <%= product.price %>)">
+          <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
+          <h6><%= product.name %></h6>
+          <p class="mb-0">$<%= product.price.toFixed(2) %></p>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="checkout-panel">
+    <div class="cart-header">
+      <h5 class="fw-bold mb-0 text-dark">🧾 Cart Summary</h5>
+    </div>
+    
+    <div id="cartItems">
+        </div>
+    
+    <div class="empty-cart" id="emptyCartText">
+        <i class="fas fa-shopping-cart me-2"></i> Cart is empty. Tap a product to start!
+    </div>
+
+    <div class="total-section">
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="total-label text-dark">Grand Total:</span>
+        <span class="total-label">$<span id="totalAmount">0.00</span></span>
+      </div>
+      <button class="checkout-btn" onclick="checkout()">PROCESS PAYMENT</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let cart = [];
+
+  function addToCart(name, price) {
+    const existing = cart.find(item => item.name === name);
+    if (existing) {
+      existing.qty++;
+    } else {
+      cart.push({ name, price, qty: 1 });
+    }
+    renderCart();
+  }
+
+  function updateQty(name, change) {
+    const item = cart.find(i => i.name === name);
+    if (!item) return;
+    item.qty += change;
+    if (item.qty <= 0) {
+      cart = cart.filter(i => i.name !== name);
+    }
+    renderCart();
+  }
+
+  function renderCart() {
+    const cartItemsDiv = document.getElementById('cartItems');
+    const totalAmountEl = document.getElementById('totalAmount');
+    const emptyText = document.getElementById('emptyCartText');
+    cartItemsDiv.innerHTML = '';
+    let total = 0;
+
+    if (cart.length === 0) {
+      emptyText.style.display = 'block';
+    } else {
+      emptyText.style.display = 'none';
+    }
+
+    cart.forEach(item => {
+      const itemTotal = item.qty * item.price;
+      total += itemTotal;
+
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+      div.innerHTML = `
+        <span class="cart-item-name">${item.name}</span>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="updateQty('${item.name}', -1)">−</button>
+          <span>${item.qty}</span>
+          <button class="qty-btn" onclick="updateQty('${item.name}', 1)">+</button>
+        </div>
+        <span>$${itemTotal.toFixed(2)}</span>
+      `;
+      cartItemsDiv.appendChild(div);
+    });
+
+    totalAmountEl.textContent = total.toFixed(2);
+  }
+
+  async function checkout() {
+    if (cart.length === 0) {
+      // Assuming you have SweetAlert2 (Swal) linked, as used in the original script
+      if (typeof Swal !== 'undefined') {
+        Swal.fire('Cart Empty', 'Please add some products first!', 'warning');
+      } else {
+        alert('Cart Empty. Please add some products first!');
+      }
+      return;
+    }
+
+    const total = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+
+    // Placeholder for API call
+    console.log('Checking out with total:', total.toFixed(2), 'and items:', cart);
+    
+    // Original fetch logic (uncomment if running in a Node/Express environment)
+    await fetch('/cashier/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cart, total })
+    });
+
+
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: '✅ Success!',
+        text: 'Order has been placed successfully.',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } else {
+      alert('Order placed successfully!');
+    }
+
+
+    cart = [];
+    renderCart();
+  }
+
+   async function checkout() {
+    if (cart.length === 0) {
+      // Assuming Swal is available for notifications
+      if (typeof Swal !== 'undefined') {
+        Swal.fire('Cart Empty', 'Please add some products first!', 'warning');
+      } else {
+        alert('Cart Empty. Please add some products first!');
+      }
+      return;
+    }
+
+    const total = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+
+    try {
+        const response = await fetch('/admin/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cart, total })
+        });
+        
+        // Check for download success
+        if (!response.ok) {
+            throw new Error('Server responded with an error during voucher generation.');
+        }
+
+        // Get the filename from the Content-Disposition header
+        const disposition = response.headers.get('Content-Disposition');
+        let filename = 'voucher.pdf';
+        if (disposition && disposition.indexOf('attachment') !== -1) {
+            const matches = /filename="?([^"]+)"?/.exec(disposition);
+            if (matches != null && matches[1]) {
+                filename = matches[1];
+            }
+        }
+
+        // Get the response as a Blob
+        const blob = await response.blob();
+        
+        // Create a temporary link element to trigger the download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+
+        // Show success message and clear cart
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            title: '✅ Success!',
+            text: 'Order complete. Voucher is downloading...',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 2000
+          });
+        }
+
+        cart = [];
+        renderCart();
+
+    } catch (error) {
+        console.error('Checkout failed:', error);
+        if (typeof Swal !== 'undefined') {
+          Swal.fire('Error', 'Failed to process payment and download voucher.', 'error');
+        }
+    }
+  }
+</script>

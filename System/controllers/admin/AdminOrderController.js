@@ -3,14 +3,12 @@ const Product = require("../../models/Products");
 
 const getAdminOrderPage = async (req, res) => {
 
-    const orders = await Order.find()
-    const products = await Product.find()
+    const orders = await Order.find().sort({ date: -1 });
     res.render("admin/orders/AdminOrderPage", {
         layout: "./layouts/adminApp",
         docTitle: "Order History",
         pageTitle: "Order History",
         orders: orders,
-        products: products
     });
 }
 

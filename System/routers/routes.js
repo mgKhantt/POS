@@ -11,6 +11,7 @@ const multer = require("multer");
 const AdminController = require("../controllers/admin/AdminController");
 const AdminProductsController = require("../controllers/admin/AdminProductsController");
 const AdminOrderController = require("../controllers/admin/AdminOrderController");
+const AdminCashierController = require("../controllers/admin/AdminCashierController");
 
 
 const uploadPath = path.join(__dirname, '../public/uploads');
@@ -82,6 +83,8 @@ adminRoute.delete("/products/create-product/brand-manager/delete/:id", AdminProd
 
 //Cashier Page Route
 adminRoute.get("/orders", AdminOrderController.getAdminOrderPage)
+adminRoute.get("/cashier", AdminCashierController.getAdminCashierPage)
+adminRoute.post("/checkout", AdminCashierController.postCheckOut)
 
 exports.clientRoute = clientRoute;
 exports.adminRoute = adminRoute;
