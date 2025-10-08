@@ -10,6 +10,7 @@ const path = require('path')
 const multer = require("multer");
 const AdminController = require("../controllers/admin/AdminController");
 const AdminProductsController = require("../controllers/admin/AdminProductsController");
+const AdminOrderController = require("../controllers/admin/AdminOrderController");
 
 
 const uploadPath = path.join(__dirname, '../public/uploads');
@@ -78,6 +79,9 @@ adminRoute.delete("/products/create-product/category-manager/delete/:id", AdminP
 adminRoute.get("/products/create-product/brand-manager", AdminProductsController.getBrandManagerPage)
 adminRoute.post("/products/create-product/brand-manager", AdminProductsController.postBrandManager)
 adminRoute.delete("/products/create-product/brand-manager/delete/:id", AdminProductsController.deleteBrandManager)
+
+//Cashier Page Route
+adminRoute.get("/orders", AdminOrderController.getAdminOrderPage)
 
 exports.clientRoute = clientRoute;
 exports.adminRoute = adminRoute;

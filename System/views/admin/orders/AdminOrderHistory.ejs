@@ -1,0 +1,23 @@
+<div class="container mt-5">
+  <h3>Order History</h3>
+  <table class="table table-striped mt-3">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Date</th>
+        <th>Customer</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% history.forEach((order, i) => { %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><%= order.date %></td>
+          <td><%= order.customer %></td>
+          <td>$<%= order.total %></td>
+        </tr>
+      <% }) %>
+    </tbody>s
+  </table>
+</div>
