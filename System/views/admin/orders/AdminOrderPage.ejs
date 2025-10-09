@@ -3,11 +3,86 @@
   .orders-page {
     padding: 30px;
   }
+
   .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
+
+  .filter-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .filter-bar input,
+  .filter-bar select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 0.95rem;
+    outline: none;
+  }
+
+  .card {
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    background-color: #fff;
+  }
+
+  .order-header {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+  }
+
+  .order-items {
+    display: none;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    border-top: 1px dashed #e5e7eb;
+    padding-top: 5px;
+  }
+
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    border-bottom: 1px dashed #e5e7eb;
+  }
+
+  .badge-completed {
+    background-color: #28a745;
+    color: #fff;
+  }
+
+  .badge-pending {
+    background-color: #ffc107;
+    color: #212529;
+  }
+
+  .badge-cancelled {
+    background-color: #dc3545;
+    color: #fff;
+  }
+
+  .expand-icon {
+    transition: transform 0.3s ease;
+  }
+
+  .expanded .expand-icon {
+    transform: rotate(90deg);
+  }
+
+  .order-separator {
+    border: 0;
+    border-top: 1px dashed #0055ff;
+    margin: 10px 0 10px 0;
+  }
+
 </style>
 
 <%- contentFor('body') %>
@@ -17,33 +92,128 @@
     <a href="/admin/cashier" class="btn btn-success">Go to Cashier Mode</a>
   </div>
 
-  <div class="card p-4 shadow">
-    <table class="table table-hover mt-3">
-      <thead class="table-light">
-        <tr>
-          <th>#</th>
-          <th>Customer</th>
-          <th>Item</th>
-          <th>Qty</th>
-          <th>Total</th>
-          <th>Status</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% orders.forEach((order, index) => { %>
-        <tr>
-          <td><%= index + 1 %></td>
-          <td><%= order.customerName %></td>
-          <td><%= order.item %></td>
-          <td><%= order.quantity %></td>
-          <td>$<%= order.total %></td>
-          <td><span class="badge bg-success"><%= order.status %></span></td>
-          <td><%= new Date(order.date).toLocaleDateString() %></td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
-    <a href="/orders/history" class="text-primary">View Order History →</a>
+  <!-- Filter/Search Bar -->
+  <div class="filter-bar">
+    <input type="text" id="searchCustomer" placeholder="Search by customer..." onkeyup="filterOrders()">
+    <select id="statusFilter" onchange="filterOrders()">
+      <option value="">All Status</option>
+      <option value="Pending">Pending</option>
+      <option value="Completed">Completed</option>
+      <option value="Cancelled">Cancelled</option>
+    </select>
+
+    <select id="timeFilter" onchange="filterOrders()">
+    <option value="">All Time</option>
+    <option value="today">Today</option>
+    <option value="yesterday">Yesterday</option>
+    <option value="last7">Last 7 Days</option>
+    <option value="last30">Last 30 Days</option>
+    <option value="last365">Last 365 Days</option>
+  </select>
   </div>
+
+  <div class="card p-4 shadow" id="ordersContainer">
+  <% orders.forEach((order, index) => { 
+    const orderNumber = orders.length - index;
+    %>
+<div class="order" data-date="<%= order.date.toISOString() %>" data-status="<%= order.status %>">
+      <div class="order-header" onclick="toggleItems(<%= index %>)">
+        <div>
+          <strong>#<%= orderNumber %></strong> - <%= order.customerName %>
+        </div>
+        <div>
+          <span class="badge 
+            <%= order.status === 'Completed' ? 'badge-completed' : 
+                order.status === 'Pending' ? 'badge-pending' : 'badge-cancelled' %>">
+            <%= order.status %>
+          </span>
+          <span class="expand-icon">▶</span>
+        </div>
+      </div>
+      <div class="order-items" id="orderItems-<%= index %>">
+        <% order.items.forEach(item => { %>
+          <div class="order-item">
+            <span><%= item.name %> x<%= item.qty %></span>
+            <span>$<%= (item.price * item.qty).toFixed(2) %></span>
+          </div>
+        <% }) %>
+        <div class="order-item" style="font-weight: bold;">
+          <span>Total:</span>
+          <span>$<%= order.total.toFixed(2) %></span>
+        </div>
+        <div class="order-item">
+          <span>Date:</span>
+          <span><%= new Date(order.date).toLocaleDateString() %></span>
+        </div>
+      </div>
+      <!-- Move hr inside the order -->
+      <hr class="order-separator">
+    </div>
+  <% }) %>
+  <!-- <a href="/orders/history" class="text-primary">View Order History →</a> -->
 </div>
+
+
+<script>
+  function toggleItems(index) {
+    const itemsDiv = document.getElementById(`orderItems-${index}`);
+    const orderDiv = itemsDiv.parentElement;
+    itemsDiv.style.display = itemsDiv.style.display === 'block' ? 'none' : 'block';
+    orderDiv.classList.toggle('expanded');
+  }
+
+  function sortOrders() {
+  const sortValue = document.getElementById('dateSort').value;
+  const container = document.getElementById('ordersContainer');
+  const orders = Array.from(container.querySelectorAll('.order'));
+
+  orders.sort((a, b) => {
+    const dateA = new Date(a.querySelector('.order-items div span:last-child').innerText);
+    const dateB = new Date(b.querySelector('.order-items div span:last-child').innerText);
+    return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
+  });
+
+  // Append sorted orders back to the container
+  orders.forEach(order => container.appendChild(order));
+}
+
+function filterOrders() {
+  const searchTerm = document.getElementById('searchCustomer').value.toLowerCase();
+  const statusFilter = document.getElementById('statusFilter').value;
+  const timeFilter = document.getElementById('timeFilter').value;
+
+  const orders = document.querySelectorAll('#ordersContainer .order');
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  orders.forEach(order => {
+    const customerName = order.querySelector('.order-header div').innerText.toLowerCase();
+    const status = order.dataset.status; // use data-status now
+
+    const orderDateStr = order.dataset.date;
+    const orderDate = new Date(orderDateStr);
+
+    let show = true;
+
+    // Customer Name & Status filter
+    if (!customerName.includes(searchTerm)) show = false;
+    if (statusFilter && status !== statusFilter) show = false;
+
+    // Time filter
+    if (timeFilter) {
+      const diffTime = startOfToday - new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate());
+      const diffDays = diffTime / (1000 * 60 * 60 * 24); // difference in days
+
+      if (timeFilter === 'today' && diffDays !== 0) show = false;
+      if (timeFilter === 'yesterday' && diffDays !== 1) show = false;
+      if (timeFilter === 'last7' && (diffDays < 0 || diffDays > 6)) show = false;
+      if (timeFilter === 'last30' && (diffDays < 0 || diffDays > 29)) show = false;
+      if (timeFilter === 'last365' && (diffDays < 0 || diffDays > 364)) show = false;
+    }
+
+    order.style.display = show ? 'block' : 'none';
+  });
+}
+
+
+</script>
