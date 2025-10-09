@@ -253,7 +253,13 @@
     <%- contentFor('body') %>
         <div class="pos-container container">
             <div>
-                <h4 class="mb-4 fw-bold text-dark">🛒 Product Catalog</h4>
+                <div class="d-flex align-items-center mb-4">
+                    <button class="btn btn-outline-secondary d-flex align-items-center" onclick="window.history.back()">
+                        <i class="fa fa-arrow-left me-2"></i> Back
+                    </button>
+                    <h2 class="h4 mb-0 fw-bold ms-3">🛒 Cashier POS</h2>
+                </div>
+
 
                 <div class="filter-search">
                     <input type="text" id="searchInput" placeholder="Search products..." onkeyup="filterProducts()">
@@ -284,21 +290,21 @@
 
                 <div class="product-grid" id="productGrid">
                     <% products.forEach(product=> { %>
-                        <% if(product.stock > 0) { %>
-                        <div class="product-card" data-name="<%= product.name.toLowerCase() %>"
-                            data-category="<%= product.category %>" data-brand="<%= product.brand %>"
-                            data-price="<%= product.price %>"
-                            onclick="addToCart('<%= product._id %>','<%= product.name %>', <%= product.price %>)">
-                            <img src="<%= product.imageUrl || '/uploads/no-image.png' %>" class="no-select"
-                                alt="<%= product.name %>" draggable="false">
-                            <h6 class="no-select">
-                                <%= product.name %>
-                            </h6>
-                            <p class="mb-0 no-select">$<%= product.price.toFixed(2) %>
-                            </p>
-                        </div>
-                        <% } %>
-                        <% }) %>
+                        <% if(product.stock> 0) { %>
+                            <div class="product-card" data-name="<%= product.name.toLowerCase() %>"
+                                data-category="<%= product.category %>" data-brand="<%= product.brand %>"
+                                data-price="<%= product.price %>"
+                                onclick="addToCart('<%= product._id %>','<%= product.name %>', <%= product.price %>)">
+                                <img src="<%= product.imageUrl || '/uploads/no-image.png' %>" class="no-select"
+                                    alt="<%= product.name %>" draggable="false">
+                                <h6 class="no-select">
+                                    <%= product.name %>
+                                </h6>
+                                <p class="mb-0 no-select">$<%= product.price.toFixed(2) %>
+                                </p>
+                            </div>
+                            <% } %>
+                                <% }) %>
                 </div>
             </div>
 
@@ -329,7 +335,7 @@
             function addToCart(_id, name, price) {
                 const existing = cart.find(item => item._id === _id);
                 if (existing) existing.qty++;
-                else cart.push({_id, name, price, qty: 1 });
+                else cart.push({ _id, name, price, qty: 1 });
                 renderCart();
             }
 
