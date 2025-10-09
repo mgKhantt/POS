@@ -1,48 +1,59 @@
-const express = require('express');
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
+const Admin = require("../models/Admins");
+const User = require("../models/Users");
+const SECRET_KEY = process.env.SECRET_KEY || "POS";
 
 const authMiddleware = (req, res, next) => {
-    const SECRET_KEY = process.env.SECRET_KEY
-    const token = req.cookies.token;
-    // if (!token) {
-    //     return res.redirect('/login');
-    // }
-
-    if (!req.session.user) {
-        return res.redirect('/login');
-    }
-    next();
-    // jwt.verify(token, SECRET_KEY, (err, decoded) => {
-    //     if (err) {
-    //         return res.redirect('/login');
-    //     }
-    //     req.user = decoded;
-    //     req.session.user = req.data.user;
-    //     next();
-    // })
-}
-
-const authAdminMiddleware = (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {
-        return res.redirect('/admin/login'); // Redirect to admin login page if token is not found
+        return res.redirect("/login");
     }
-    
-    const userEmail = token
-    const User = require('../models/User');
-    User.findOne({ email: userEmail}, (err, user) => {
-        if (err || !user) return res.redirect('/admin/login');
-        if (user.role !== 'admin') return res.status(403).json({ message: 'Access denied' });
+
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+
+        // Only allow clients here
+        if (decoded.role !== "client") {
+            return res.redirect("/login");
+        }
+
+        req.user = decoded;
+        res.locals.username = decoded.name; // username for navbar
+        res.locals.page = req.path.split('/')[1] || 'home';
         next();
-    })
-}
+    } catch (err) {
+        console.error("User error:", err);
+        res.clearCookie("token");
+        return res.redirect("/login");
+    }
+};
 
-const userName = (req, res, next) => {
-    res.locals.userName = req.session.user ? req.session.user.name : null;
-    res.locals.page = req.path.split('/')[1] || 'home';
-    next();
-}
 
-exports.authMiddleware = authMiddleware;
-exports.authAdminMiddleware = authAdminMiddleware;
-exports.userName = userName;
+const authAdminMiddleware = async (req, res, next) => {
+    const token = req.cookies.token;
+    if (!token) {
+        return res.redirect("/admin/login");
+    }
+
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        const admin = await Admin.findById(decoded.id);
+        if (!admin) {
+            res.clearCookie("token");
+            return res.redirect("/admin/login");
+        }
+
+        req.admin = decoded;
+        res.locals.adminName = decoded.username || decoded.name;
+        res.locals.page = req.path.split('/')[1] || 'dashboard';
+        next();
+    } catch (err) {
+        console.error(err);
+        console.error("Admin auth error:", err);
+        res.clearCookie("token");
+        return res.redirect("/admin/login");
+    }
+};
+
+exports.authMiddleware = authMiddleware
+exports.authAdminMiddleware = authAdminMiddleware

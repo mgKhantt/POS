@@ -54,6 +54,42 @@
     border-bottom: 1px dashed #e5e7eb;
   }
 
+  .order-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .order-actions button {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .btn-view {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  .btn-edit {
+    background-color: #ffc107;
+    color: #212529;
+  }
+
+  .btn-delete {
+    background-color: #dc3545;
+    color: #fff;
+  }
+
+  .btn-view:hover,
+  .btn-edit:hover,
+  .btn-delete:hover {
+    opacity: 0.85;
+  }
+
   .badge-completed {
     background-color: #28a745;
     color: #fff;
@@ -80,9 +116,8 @@
   .order-separator {
     border: 0;
     border-top: 1px dashed #0055ff;
-    margin: 10px 0 10px 0;
+    margin: 10px 0;
   }
-
 </style>
 
 <%- contentFor('body') %>
@@ -103,56 +138,72 @@
     </select>
 
     <select id="timeFilter" onchange="filterOrders()">
-    <option value="">All Time</option>
-    <option value="today">Today</option>
-    <option value="yesterday">Yesterday</option>
-    <option value="last7">Last 7 Days</option>
-    <option value="last30">Last 30 Days</option>
-    <option value="last365">Last 365 Days</option>
-  </select>
+      <option value="">All Time</option>
+      <option value="today">Today</option>
+      <option value="yesterday">Yesterday</option>
+      <option value="last7">Last 7 Days</option>
+      <option value="last30">Last 30 Days</option>
+      <option value="last365">Last 365 Days</option>
+    </select>
   </div>
 
   <div class="card p-4 shadow" id="ordersContainer">
-  <% orders.forEach((order, index) => { 
-    const orderNumber = orders.length - index;
+    <% orders.forEach((order, index) => { 
+      const orderNumber = orders.length - index;
     %>
-<div class="order" data-date="<%= order.date.toISOString() %>" data-status="<%= order.status %>">
-      <div class="order-header" onclick="toggleItems(<%= index %>)">
-        <div>
-          <strong>#<%= orderNumber %></strong> - <%= order.customerName %>
-        </div>
-        <div>
-          <span class="badge 
-            <%= order.status === 'Completed' ? 'badge-completed' : 
-                order.status === 'Pending' ? 'badge-pending' : 'badge-cancelled' %>">
-            <%= order.status %>
-          </span>
-          <span class="expand-icon">▶</span>
-        </div>
-      </div>
-      <div class="order-items" id="orderItems-<%= index %>">
-        <% order.items.forEach(item => { %>
-          <div class="order-item">
-            <span><%= item.name %> x<%= item.qty %></span>
-            <span>$<%= (item.price * item.qty).toFixed(2) %></span>
+      <div class="order" 
+           data-date="<%= order.date.toISOString() %>" 
+           data-status="<%= order.status %>" 
+           data-id="<%= order._id %>">
+           
+        <div class="order-header" onclick="toggleItems(<%= index %>)">
+          <div>
+            <strong>#<%= orderNumber %></strong> - <%= order.customerName %>
           </div>
-        <% }) %>
-        <div class="order-item" style="font-weight: bold;">
-          <span>Total:</span>
-          <span>$<%= order.total.toFixed(2) %></span>
+          <div>
+            <span class="badge 
+              <%= order.status === 'Completed' ? 'badge-completed' : 
+                  order.status === 'Pending' ? 'badge-pending' : 'badge-cancelled' %>">
+              <%= order.status %>
+            </span>
+            <span class="expand-icon">▶</span>
+          </div>
         </div>
-        <div class="order-item">
-          <span>Date:</span>
-          <span><%= new Date(order.date).toLocaleDateString() %></span>
-        </div>
-      </div>
-      <!-- Move hr inside the order -->
-      <hr class="order-separator">
-    </div>
-  <% }) %>
-  <!-- <a href="/orders/history" class="text-primary">View Order History →</a> -->
-</div>
 
+        <div class="order-items" id="orderItems-<%= index %>">
+          <% order.items.forEach(item => { %>
+            <div class="order-item">
+              <span><%= item.name %> x<%= item.qty %></span>
+              <span>$<%= (item.price * item.qty).toFixed(2) %></span>
+            </div>
+          <% }) %>
+          <div class="order-item" style="font-weight: bold;">
+            <span>Total:</span>
+            <span>$<%= order.total.toFixed(2) %></span>
+          </div>
+          <div class="order-item">
+            <span>Date:</span>
+            <span><%= new Date(order.date).toLocaleDateString() %></span>
+          </div>
+
+          <!-- CRUD Buttons -->
+          <div class="order-actions">
+            <button class="btn-view" onclick="viewOrder('<%= order._id %>')">
+              <i class="fa fa-eye"></i> View
+            </button>
+            <button class="btn-edit" onclick="editOrder('<%= order._id %>')">
+              <i class="fa fa-edit"></i> Edit
+            </button>
+            <button class="btn-delete" onclick="deleteOrder('<%= order._id %>')">
+              <i class="fa fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+        <hr class="order-separator">
+      </div>
+    <% }) %>
+  </div>
+</div>
 
 <script>
   function toggleItems(index) {
@@ -162,58 +213,68 @@
     orderDiv.classList.toggle('expanded');
   }
 
-  function sortOrders() {
-  const sortValue = document.getElementById('dateSort').value;
-  const container = document.getElementById('ordersContainer');
-  const orders = Array.from(container.querySelectorAll('.order'));
+  function viewOrder(id) {
+    window.location.href = `/admin/orders/${id}`;
+  }
 
-  orders.sort((a, b) => {
-    const dateA = new Date(a.querySelector('.order-items div span:last-child').innerText);
-    const dateB = new Date(b.querySelector('.order-items div span:last-child').innerText);
-    return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
-  });
+  function editOrder(id) {
+    window.location.href = `/admin/orders/edit/${id}`;
+  }
 
-  // Append sorted orders back to the container
-  orders.forEach(order => container.appendChild(order));
-}
+  function deleteOrder(id) {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This order will be permanently deleted.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`/admin/orders/${id}`, { method: "DELETE" })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire("Deleted!", "The order has been removed.", "success").then(() => {
+                location.reload();
+              });
+            } else {
+              Swal.fire("Error!", data.message || "Failed to delete order.", "error");
+            }
+          });
+      }
+    });
+  }
 
-function filterOrders() {
-  const searchTerm = document.getElementById('searchCustomer').value.toLowerCase();
-  const statusFilter = document.getElementById('statusFilter').value;
-  const timeFilter = document.getElementById('timeFilter').value;
+  function filterOrders() {
+    const searchTerm = document.getElementById('searchCustomer').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const timeFilter = document.getElementById('timeFilter').value;
 
-  const orders = document.querySelectorAll('#ordersContainer .order');
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const orders = document.querySelectorAll('#ordersContainer .order');
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  orders.forEach(order => {
-    const customerName = order.querySelector('.order-header div').innerText.toLowerCase();
-    const status = order.dataset.status; // use data-status now
+    orders.forEach(order => {
+      const customerName = order.querySelector('.order-header div').innerText.toLowerCase();
+      const status = order.dataset.status;
+      const orderDate = new Date(order.dataset.date);
 
-    const orderDateStr = order.dataset.date;
-    const orderDate = new Date(orderDateStr);
+      let show = true;
 
-    let show = true;
+      if (!customerName.includes(searchTerm)) show = false;
+      if (statusFilter && status !== statusFilter) show = false;
 
-    // Customer Name & Status filter
-    if (!customerName.includes(searchTerm)) show = false;
-    if (statusFilter && status !== statusFilter) show = false;
-
-    // Time filter
-    if (timeFilter) {
-      const diffTime = startOfToday - new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate());
-      const diffDays = diffTime / (1000 * 60 * 60 * 24); // difference in days
+      const diffDays = (startOfToday - new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate())) / (1000 * 60 * 60 * 24);
 
       if (timeFilter === 'today' && diffDays !== 0) show = false;
       if (timeFilter === 'yesterday' && diffDays !== 1) show = false;
       if (timeFilter === 'last7' && (diffDays < 0 || diffDays > 6)) show = false;
       if (timeFilter === 'last30' && (diffDays < 0 || diffDays > 29)) show = false;
       if (timeFilter === 'last365' && (diffDays < 0 || diffDays > 364)) show = false;
-    }
 
-    order.style.display = show ? 'block' : 'none';
-  });
-}
-
-
+      order.style.display = show ? 'block' : 'none';
+    });
+  }
 </script>

@@ -27,7 +27,9 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: false } // Set to true if using HTTPS
 }))
-app.use(Auth.userName)
+
+// app.use(Auth.authAdminMiddleware)
+// app.use(Auth.authMiddleware)
 
 app.use(clientRoute)
 app.use('/admin', adminRoute)

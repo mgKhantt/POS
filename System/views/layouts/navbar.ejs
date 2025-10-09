@@ -8,7 +8,7 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <% if (page !== 'register' && page !== 'login') { %>
+            <% if (locals.page !== 'register' && locals.page !== 'login') { %>
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a href="/products" class="nav-link d-flex align-items-center">
@@ -34,15 +34,15 @@
             <% } %>
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center">
-                <% if (userName) { %>
+                <% if (locals.username) { %>
                     <li class="nav-item d-flex align-items-center me-2">
-                        <span class="nav-link fw-semibold text-secondary">Welcome, <%= userName %></span>
+                        <span class="nav-link fw-semibold text-secondary">Welcome, <%= locals.username %></span>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-sm btn-outline-danger" href="/logout">Logout</a>
                     </li>
                 <% } else { %>
-                    <% if (page === 'register') { %>
+                    <% if (locals.page === 'register') { %>
                         <li class="nav-item">
                             <a class="btn btn-sm btn-outline-primary me-2" href="/login">Login</a>
                         </li>

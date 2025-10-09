@@ -2,12 +2,12 @@ const Admin = require("../../models/Admins");
 const User = require("../../models/Users");
 
 const getAdminHomePage = (req, res) => {
+    const admin = req.session.admin;
     res.render("admin/adminHomePage", {
         layout: "./layouts/adminApp",
         docTitle: "Admin Home",
         pageTitle: "Welcome to the Admin Dashboard",
-        // admin: req.session.user,
-        admin: { name: "Khant Phonenaing" },
+        admin: admin,
         page: "adminHome",
     });
 };

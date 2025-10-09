@@ -9,7 +9,7 @@ const getHomePage = async (req, res) => {
         pageTitle: "Welcome to the Home Page",
         user: req.session.user,
         shopName: "iCase",
-        featuredProducts: products.slice(0, 4) // Display first 4 products as featured
+        featuredProducts: products.slice(0, 4) // Display first 4 products as featured,
     })
     } catch (error) {
         console.error("Error rendering home page:", error);
