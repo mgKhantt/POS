@@ -59,6 +59,10 @@ const postCheckOut = async (req, res) => {
             total: grandTotal,
             status: "Completed",
             type: "Cashier",
+            cashier: {
+                id: req.admin._id,
+                name: req.admin.username || req.admin.name,
+            },
             date: new Date(),
         });
         await newOrder.save({ session });

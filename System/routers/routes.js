@@ -84,6 +84,7 @@ adminRoute.delete("/products/create-product/brand-manager/delete/:id", authAdmin
 adminRoute.get("/orders", authAdminMiddleware, AdminOrderController.getAdminOrderPage)
 adminRoute.get("/cashier", authAdminMiddleware, AdminCashierController.getAdminCashierPage)
 adminRoute.post("/checkout", authAdminMiddleware, AdminCashierController.postCheckOut)
+adminRoute.delete("/orders/:id", authAdminMiddleware, AdminOrderController.deleteOrder)
 
 exports.clientRoute = clientRoute;
 exports.adminRoute = adminRoute;
